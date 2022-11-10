@@ -30,9 +30,15 @@ public class PersonController {
     }
 
     @PostMapping("/persons")
-    public ResponseEntity<Person> createPerson(@RequestBody Person person) {
+    public ResponseEntity<Object> createPerson(@RequestBody Person person) {
+        for (Person p : persons) {
+            if (p.getName().equals(person.getName())) {
+                return new ResponseEntity<>("This person's name was already in our list", HttpStatus.BAD_REQUEST);
+            }
+        }
         persons.add(person);
         return new ResponseEntity<>(person, HttpStatus.CREATED);
+
 
     }
 
@@ -41,7 +47,28 @@ public class PersonController {
     public ResponseEntity<Object> updatePerson(@PathVariable int id, @RequestBody Person person) {
         if (id >= 0 && id < persons.size()) {
             persons.set(id, person);
+            // of Responseentity.OK(body.....)
             return new ResponseEntity<>(person, HttpStatus.OK);
+        } else {
+
+            return new ResponseEntity<>("Invalid id", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/persons/{id}")
+    public ResponseEntity<Object> getPerson(@PathVariable int id) {
+        if (id >= 0 && id < persons.size()) {
+            return new ResponseEntity<>(persons.get(id), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Invalid id", HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/persons/{id}")
+    public ResponseEntity<Object> deletePerson(@PathVariable int id) {
+        if (id >= 0 && id < persons.size()) {
+            persons.remove(id);
+            return new ResponseEntity<>(HttpStatus.OK);
         } else {
             return new ResponseEntity<>("Invalid id", HttpStatus.BAD_REQUEST);
         }
